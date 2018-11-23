@@ -1,13 +1,17 @@
 package `fun`.triplan
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.routing.*
-import io.ktor.http.*
-import io.ktor.auth.*
-import io.ktor.features.*
-import io.ktor.jackson.jackson
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.auth.Authentication
+import io.ktor.features.CORS
+import io.ktor.features.ContentNegotiation
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
+import io.ktor.response.respond
+import io.ktor.response.respondText
+import io.ktor.routing.get
+import io.ktor.routing.routing
 import java.util.*
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -19,9 +23,7 @@ fun Application.module(testing: Boolean = false) {
     }
 
     install(ContentNegotiation) {
-        jackson {
-            enable(SerializationFeature.INDENT_OUTPUT)
-        }
+        moshi()
     }
 
     install(CORS) {
@@ -44,10 +46,8 @@ fun Application.module(testing: Boolean = false) {
             call.respond(mapOf("snippets" to synchronized(snippets) { snippets.toList() }))
         }
     }
+
 }
-
-
-data class Snippet(val text: String)
 
 val snippets = Collections.synchronizedList(
     mutableListOf(
